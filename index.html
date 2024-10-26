@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ギター指板音階表示アプリ</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      /* 現代的なフォントファミリーを設定 */
+      background-color: #f9f9f9;
+      /* 背景色を追加 */
+      margin: 0;
+      /* マージンをリセット */
+      padding: 20px;
+      /* パディングを追加 */
+      color: #333;
+      /* テキストの基本色を設定 */
+    }
+  
+    .fretboard {
+      width: 100%;
+      /* 幅を100%にしてレスポンシブに */
+      max-width: 600px;
+      /* 最大幅を設定 */
+      height: 200px;
+      display: grid;
+      margin: 0 auto;
+      grid-template-columns: repeat(13, 1fr);
+      /* 各フレットを均等に配置 */
+      gap: 8px;
+      /* フレット間のスペースを増やす */
+      border: 2px solid #ccc;
+      /* ボーダーを薄いグレーに */
+      border-radius: 8px;
+      /* 角を丸める */
+      background-color: #ffffff;
+      /* 背景色を白に */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      /* シャドウ効果 */
+      padding: 10px;
+      /* 内側の空白を追加 */
+    }
+  
+    .fret {
+      background-color: #f1f1f1;
+      /* フレットの背景色を薄いグレーに */
+      border: 1px solid #e0e0e0;
+      /* 軽いボーダーを薄いグレーに設定 */
+      box-sizing: border-box;
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      border-radius: 4px;
+      /* 角を丸める */
+      transition: background-color 0.3s, transform 0.2s;
+      /* スムーズなホバー効果 */
+    }
+  
+    .fret:hover {
+      background-color: rgba(0, 122, 255, 0.1);
+      /* ホバー時の背景色をAppleの青に */
+      transform: translateY(-2px);
+      /* ホバー時の浮き上がる効果 */
+    }
+  
+    .highlight {
+      background-color: rgba(0, 122, 255, 0.3);
+      /* ハイライトの色を青に */
+    }
+  
+    .string-number,
+    .fret-number {
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+      /* フォントサイズを少し大きく設定 */
+      color: #222;
+      /* テキストカラーを濃いグレーに */
+      letter-spacing: 0.5px;
+      /* レタースペーシングを追加 */
+      line-height: 1.4;
+      /* 行間を広げて読みやすく */
+    }
+  
+    .fret-number {
+      margin-bottom: 5px;
+      /* 下にスペースを追加 */
+      font-size: 14px;
+      /* フレット番号のフォントサイズを設定 */
+      color: #354c66;
+      /* フレット番号のカラーをダークグレーに */
+    }
+  
+    .note-selector-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      gap: 10px;
+      /* ボタン間のスペースを追加 */
+    }
+  
+    .note-button,
+    .scale-button,
+    .chord-button {
+      padding: 8px 15px;
+      /* ボタンの内側のパディング */
+      border: 1px solid #007AFF;
+      /* ボタンのボーダーをAppleの青に設定 */
+      background-color: #ffffff;
+      /* ボタンの背景色を白に */
+      cursor: pointer;
+      border-radius: 4px;
+      /* 角を丸める */
+      transition: background-color 0.3s, color 0.3s;
+      /* スムーズな効果 */
+      margin-bottom: 5px;
+      /* 縦の間にスペースを追加 */
+      font-size: 14px;
+      /* ボタンのフォントサイズを設定 */
+      font-weight: 500;
+      /* ボタンのフォントの太さを設定 */
+      color: #354c66;
+      /* ボタンの文字色をAppleの青に */
+      letter-spacing: 0.5px;
+      /* レタースペーシングを追加 */
+    }
+  
+    .note-button:hover,
+    .scale-button:hover,
+    .chord-button:hover {
+      background-color: #77abe2;
+      /* ホバー時の背景色をAppleの青に */
+      color: white;
+      /* ホバー時の文字色を白に */
+    }
+  
+    .selected {
+      background-color: #007AFF;
+      /* 選択されたボタンの背景色をAppleの青に */
+      color: white;
+      /* 選択時の文字色を白に */
+    }
+
+    @media (max-width: 600px) {
+    .note-button, .scale-button, .chord-button {
+        flex: 1 1 30%;
+        margin: 5px;
+    }
+
+    #fretboard {
+        font-size: 0.8em; /* 小さい画面ではフォントサイズを小さくする */
+    }
+}
+
+  </style>
+
+  </head>
+<body>
+
+<h1>ギター指板音階表示アプリ</h1>
+
+<div class="note-selector-container">
+  <div>
+    <p>音階:</p>
+    <div id="note-buttons">
+      <button class="note-button" value="C">C</button>
+      <button class="note-button" value="C#">C#</button>
+      <button class="note-button" value="D">D</button>
+      <button class="note-button" value="D#">D#</button>
+      <button class="note-button" value="E">E</button>
+      <button class="note-button" value="F">F</button>
+      <button class="note-button" value="F#">F#</button>
+      <button class="note-button" value="G">G</button>
+      <button class="note-button" value="G#">G#</button>
+      <button class="note-button" value="A">A</button>
+      <button class="note-button" value="A#">A#</button>
+      <button class="note-button" value="B">B</button>
+    </div>
+  </div>
+
+  <div>
+    <p>スケール:</p>
+    <div id="scale-buttons">
+      <button class="scale-button" value="C">Cメジャー/Aマイナー</button>
+      <button class="scale-button" value="C#">C#メジャー/Bbマイナー</button>
+      <button class="scale-button" value="D">Dメジャー/Bマイナー</button>
+      <button class="scale-button" value="D#">Ebメジャー/Cマイナー</button>
+      <button class="scale-button" value="E">Eメジャー/C#マイナー</button>
+      <button class="scale-button" value="F">Fメジャー/Dマイナー</button>
+      <button class="scale-button" value="F#">F#メジャー/Ebマイナー</button>
+      <button class="scale-button" value="G">Gメジャー/Eマイナー</button>
+      <button class="scale-button" value="G#">Abメジャー/Fマイナー</button>
+      <button class="scale-button" value="A">Aメジャー/F#マイナー</button>
+      <button class="scale-button" value="A#">Bbメジャー/Gマイナー</button>
+      <button class="scale-button" value="B">Bメジャー/Abマイナー</button>
+    </div>
+  </div>
+
+  <div>
+    <p>コード:</p>
+    <div id="chord-buttons">
+      <button class="chord-button" value="C">Cコード</button>
+      <button class="chord-button" value="D">Dコード</button>
+      <button class="chord-button" value="E">Eコード</button>
+      <button class="chord-button" value="F">Fコード</button>
+      <button class="chord-button" value="G">Gコード</button>
+      <button class="chord-button" value="A">Aコード</button>
+      <button class="chord-button" value="B">Bコード</button>
+    </div>
+  </div>
+</div>
+
+<div class="fretboard" id="fretboard"></div>
+
+<script>
+  const notes = [
+    ["(E)", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"],
+    ["(B)", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
+    ["(G)", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"],
+    ["(D)", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D"],
+    ["(A)", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A"],
+    ["(E)", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"]
+  ];
+
+  const scales = {
+    "C": ["C", "D", "E", "F", "G", "A", "B"],
+    "C#": ["C#", "D#", "F", "F#", "G#", "A#", "C"],
+    "D": ["D", "E", "F#", "G", "A", "B", "C#"],
+    "D#": ["D#", "F", "G", "G#", "A#", "C", "D"],
+    "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
+    "F": ["F", "G", "A", "A#", "C", "D", "E"],
+    "F#": ["F#", "G#", "A#", "B", "C#", "D#", "F"],
+    "G": ["G", "A", "B", "C", "D", "E", "F#"],
+    "G#": ["G#", "A#", "C", "C#", "D#", "F", "G"],
+    "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
+    "A#": ["A#", "C", "D", "D#", "F", "G", "A"],
+    "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"]
+  };
+
+  const chords = {
+    "C": ["C", "E", "G"],
+    "D": ["D", "F#", "A"],
+    "E": ["E", "G#", "B"],
+    "F": ["F", "A", "C"],
+    "G": ["G", "B", "D"],
+    "A": ["A", "C#", "E"],
+    "B": ["B", "D#", "F#"]
+  };
+
+  function generateFretboard() {
+    const fretboard = document.getElementById('fretboard');
+    fretboard.innerHTML = '';
+
+    // フレット番号の表示
+    for (let fret = 0; fret <= 12; fret++) {
+        const fretNumberDiv = document.createElement('div');
+        fretNumberDiv.classList.add('fret-number');
+        fretNumberDiv.textContent = fret === 0 ? '' : fret;
+        fretboard.appendChild(fretNumberDiv);
+    }
+
+    // 弦とフレットの表示
+    for (let string = 0; string < notes.length; string++) {
+        // 弦番号の表示を削除
+        // const stringNumberDiv = document.createElement('div');
+        // stringNumberDiv.classList.add('string-number');
+        // stringNumberDiv.textContent = `${string + 1}弦`;
+        // fretboard.appendChild(stringNumberDiv);
+
+        for (let fret = 0; fret < notes[string].length; fret++) {
+            const fretDiv = document.createElement('div');
+            fretDiv.classList.add('fret');
+            fretDiv.dataset.note = notes[string][fret];
+            fretDiv.textContent = notes[string][fret];
+            fretboard.appendChild(fretDiv);
+        }
+    }
+}
+
+  function clearAllSelections() {
+    const noteButtons = document.querySelectorAll('.note-button');
+    const scaleButtons = document.querySelectorAll('.scale-button');
+    const chordButtons = document.querySelectorAll('.chord-button');
+    const frets = document.querySelectorAll('.fret');
+
+    noteButtons.forEach(button => button.classList.remove('selected'));
+    scaleButtons.forEach(button => button.classList.remove('selected'));
+    chordButtons.forEach(button => button.classList.remove('selected'));
+    frets.forEach(fret => fret.classList.remove('highlight'));
+  }
+
+  // 選択された音階に基づいて色付けを行う処理
+  function highlightNotes(selectedNotes) {
+    const frets = document.querySelectorAll('.fret'); // フレットを選択
+    frets.forEach(fret => {
+        if (selectedNotes.includes(fret.dataset.note)) { // 選択された音階がフレットの音階に含まれているか確認
+            fret.classList.add('highlight'); // ハイライトクラスを追加
+        } else {
+            fret.classList.remove('highlight'); // ハイライトを解除
+        }
+    });
+  }
+
+  function highlightScale(scale) {
+    const selectedNotes = scales[scale];
+    const frets = document.querySelectorAll('.fret');
+    frets.forEach(fret => {
+        const note = fret.dataset.note;
+        if (selectedNotes.includes(note)) {
+          fret.classList.add('highlight');
+        } else {
+            fret.classList.remove('highlight'); // ハイライトを解除
+        }
+    });
+  }
+
+  function highlightChord(chord) {
+    const selectedNotes = chords[chord];
+    const frets = document.querySelectorAll('.fret');
+
+    frets.forEach(fret => {
+      const note = fret.dataset.note;
+      if (selectedNotes.includes(note)) {
+        fret.classList.add('highlight');
+      }
+    });
+  }
+
+  // 音階ボタンが押されたときの処理
+  function handleNoteButtonClick(event) {
+    const noteButton = event.target;
+
+    // 音階ボタンを選択/解除
+    if (noteButton.classList.contains('selected')) {
+        noteButton.classList.remove('selected'); // 選択を解除
+    } else {
+        noteButton.classList.add('selected'); // 選択
+
+        // 音階ボタンが選択されたときに、スケールボタンとコードボタンの選択を解除
+        const scaleButtons = document.querySelectorAll('.scale-button.selected');
+        scaleButtons.forEach(button => button.classList.remove('selected')); // スケールボタンの選択を解除
+
+        const chordButtons = document.querySelectorAll('.chord-button.selected');
+        chordButtons.forEach(button => button.classList.remove('selected')); // コードボタンの選択を解除
+    }
+
+    // 選択された音階のリストを取得
+    const selectedNotes = Array.from(document.querySelectorAll('.note-button.selected')).map(button => button.value);
+    
+    // ハイライトを更新
+    highlightNotes(selectedNotes);
+  }
+
+  function handleScaleButtonClick(event) {
+    const scaleButton = event.target;
+    if (scaleButton.classList.contains('selected')) {
+      scaleButton.classList.remove('selected'); // 選択を解除
+      clearAllSelections();
+    } else {
+        scaleButton.classList.add('selected'); // 選択
+        clearAllSelections();
+        event.target.classList.add('selected');
+        const selectedScale = event.target.value;
+        highlightScale(selectedScale);
+        }
+  }
+
+  function handleChordButtonClick(event) {
+    const chordButton = event.target;
+    if (chordButton.classList.contains('selected')) {
+      chordButton.classList.remove('selected'); // 選択を解除
+      clearAllSelections();
+    } else {
+        clearAllSelections();
+        event.target.classList.add('selected');
+        const selectedChord = event.target.value;
+        highlightChord(selectedChord);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    generateFretboard();
+
+    const noteButtons = document.querySelectorAll('.note-button');
+    noteButtons.forEach(button => {
+      button.addEventListener('click', handleNoteButtonClick);
+    });
+
+    const scaleButtons = document.querySelectorAll('.scale-button');
+    scaleButtons.forEach(button => {
+      button.addEventListener('click', handleScaleButtonClick);
+    });
+
+    const chordButtons = document.querySelectorAll('.chord-button');
+    chordButtons.forEach(button => {
+      button.addEventListener('click', handleChordButtonClick);
+    });
+  });
+</script>
+
+</body>
+</html>
