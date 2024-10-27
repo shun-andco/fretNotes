@@ -1,264 +1,291 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ギター指板音階表示アプリ</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       background-color: #f9f9f9;
       margin: 0;
       padding: 20px;
       color: #333;
     }
-  
-    .fretboard {
-      width: 100%;
-      max-width: 600px;
-      height: 200px;
-      display: grid;
-      margin: 0 auto;
-      grid-template-columns: repeat(13, 1fr);
-      gap: 8px;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      background-color: #ffffff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    h1 {
+      font-size: 2.5em;
+      /* 大きな見出し */
+      font-weight: 500;
+      /* 普通の太さ */
+      color: #3e3255;
+      /* 濃い紫 */
+      margin-bottom: 20px;
+      text-align: center;
+      /* 中央揃え */
     }
-  
+
+    .fretboard {
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      display: grid;
+      margin: 4px auto;
+      padding: 3px;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 0.75%;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      /* 角を丸く */
+      background-color: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
     .fret {
-      background-color: #f1f1f1;
-      border: 1px solid #e0e0e0;
-      box-sizing: border-box;
+      aspect-ratio: 16 / 9;
       display: grid;
       justify-content: center;
       align-items: center;
-      border-radius: 4px;
+      border-radius: 8px;
+      /* 角を丸く */
       transition: background-color 0.3s, transform 0.2s;
+      background-color: #f1f1f1;
+      border: 1px solid #d1c4e9;
+      /* 薄い紫 */
     }
-  
+
     .fret:hover {
-      background-color: rgba(0, 122, 255, 0.1);
-      transform: translateY(-2px);
+      background-color: rgba(128, 0, 128, 0.2);
+      /* パープルのホバー */
     }
-  
+
     .highlight {
-      background-color: rgba(0, 122, 255, 0.3);
+      background-color: rgba(128, 0, 128, 0.3);
+      /* 薄いパープル */
     }
-  
+
     .string-number,
     .fret-number {
       font-weight: bold;
       text-align: center;
       font-size: 16px;
-      color: #222;
+      color: #6a1b9a;
+      /* 濃い紫 */
       letter-spacing: 0.5px;
       line-height: 1.4;
     }
-  
+
     .fret-number {
-      margin-bottom: 5px;
       font-size: 14px;
-      color: #354c66;
+      color: #5e35b1;
+      /* 濃い紫 */
     }
-  
+
     .note-selector-container {
       display: flex;
       flex-wrap: wrap;
-      margin-bottom: 20px;
-      gap: 10px;
-      margin: 0 auto;
+      margin: 20px auto;
+      /* 上下の余白を追加 */
+      padding: 0;
+      align-items: stretch;
     }
-  
+
+    .note-button,
+    .chord-button {
+      aspect-ratio: 1/1;
+    }
+
     .note-button,
     .scale-button,
     .chord-button {
-      padding: 10px 15px;
-      border: 1px solid #007AFF;
+      padding: 10px;
+      border: 1px solid #9c27b0;
+      /* 濃いピンク */
       background-color: #ffffff;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 8px;
+      /* 角を丸く */
       transition: background-color 0.3s, color 0.3s;
-      margin-bottom: 5px;
+      margin: 2px;
       font-size: 14px;
       font-weight: 500;
-      color: #354c66;
-      letter-spacing: 0.5px;
+      color: #5e35b1;
+      /* 濃い紫 */
       flex: 1 1 calc(33.33% - 10px);
       /* 横に3つ並ぶように設定 */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      min-height: 40px;
     }
-  
+
     .note-button:hover,
     .scale-button:hover,
     .chord-button:hover {
-      background-color: #77abe2;
+      background-color: #9c27b0;
+      /* 濃いピンクのホバー */
       color: white;
+      transform: translateY(-2px);
     }
-  
+
     .selected {
-      background-color: #007AFF;
+      background-color: #5e35b1;
+      /* 濃い紫 */
       color: white;
     }
-  
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #9c27b0;
+      /* 濃いピンク */
+      margin: 2px auto;
+    }
+
+    .double-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     /* モバイル対応 */
-    @media (max-width: 600px) {
+    /* @media (max-width: 600px) {
       .fretboard {
-        height: auto;
         font-size: auto;
-        padding: auto;
-        margin: 0 auto;
       }
-  
+
       .note-button,
       .scale-button,
       .chord-button {
-        padding: auto;
-        font-size: auto;
+        padding: 10px;
+        font-size: 12px;
       }
-  
+
       .fret {
         padding: auto;
-        font-size: 8px;
-        background-color: #f1f1f1;
-        border: 1px solid #e0e0e0;
-        box-sizing: border-box;
-        display: grid;
-        justify-content: center;
-        align-items: center;
-        border-radius: 4px;
-        transition: background-color 0.3s, transform 0.2s;
-        gap: auto;
       }
+
       .fretboard {
         width: 100%;
-        max-width: 100%;
-        height: auto;
         display: grid;
-        margin: 0 auto;
-        gap: auto;
-        padding: auto;
-        margin: 0 auto;
       }
+
       .note-selector-container {
         display: flex;
         flex-wrap: wrap;
         margin-bottom: auto;
-        gap: auto;
-        margin: 0 auto;
-        padding: 1px
+        gap: 10px;
       }
-    }
+    } */
   </style>
+</head>
 
-
-  </head>
 <body>
 
-<h1>ギター指板音階表示アプリ</h1>
+  <h1>ギター指板音階表示アプリ</h1>
 
-<div class="note-selector-container">
-  <div>
-    <p>音階:</p>
-    <div id="note-buttons">
-      <button class="note-button" value="C">C</button>
-      <button class="note-button" value="C#">C#</button>
-      <button class="note-button" value="D">D</button>
-      <button class="note-button" value="D#">D#</button>
-      <button class="note-button" value="E">E</button>
-      <button class="note-button" value="F">F</button>
-      <button class="note-button" value="F#">F#</button>
-      <button class="note-button" value="G">G</button>
-      <button class="note-button" value="G#">G#</button>
-      <button class="note-button" value="A">A</button>
-      <button class="note-button" value="A#">A#</button>
-      <button class="note-button" value="B">B</button>
+  <div class="note-selector-container">
+    <div>
+      <p>音階</p>
+      <div id="note-buttons">
+        <button class="note-button" value="C">C</button>
+        <button class="note-button" value="C#">C#</button>
+        <button class="note-button" value="D">D</button>
+        <button class="note-button" value="D#">D#</button>
+        <button class="note-button" value="E">E</button>
+        <button class="note-button" value="F">F</button>
+        <button class="note-button" value="F#">F#</button>
+        <button class="note-button" value="G">G</button>
+        <button class="note-button" value="G#">G#</button>
+        <button class="note-button" value="A">A</button>
+        <button class="note-button" value="A#">A#</button>
+        <button class="note-button" value="B">B</button>
+      </div>
+    </div>
+
+    <div>
+      <p>スケール</p>
+      <div id="scale-buttons">
+        <button class="scale-button" value="C">C/Am</button>
+        <button class="scale-button" value="C#">C#/Bbm</button>
+        <button class="scale-button" value="D">D/Bm</button>
+        <button class="scale-button" value="D#">Eb/Cm</button>
+        <button class="scale-button" value="E">E/C#m</button>
+        <button class="scale-button" value="F">F/Dm</button>
+        <button class="scale-button" value="F#">F#/Ebm</button>
+        <button class="scale-button" value="G">G/Em</button>
+        <button class="scale-button" value="G#">Ab/Fm</button>
+        <button class="scale-button" value="A">A/F#m</button>
+        <button class="scale-button" value="A#">Bb/Gm</button>
+        <button class="scale-button" value="B">B/Abm</button>
+      </div>
+    </div>
+
+    <div>
+      <p>コード</p>
+      <div id="chord-buttons">
+        <button class="chord-button" value="C">C</button>
+        <button class="chord-button" value="D">D</button>
+        <button class="chord-button" value="E">E</button>
+        <button class="chord-button" value="F">F</button>
+        <button class="chord-button" value="G">G</button>
+        <button class="chord-button" value="A">A</button>
+        <button class="chord-button" value="B">B</button>
+      </div>
     </div>
   </div>
 
-  <div>
-    <p>スケール:</p>
-    <div id="scale-buttons">
-      <button class="scale-button" value="C">Cメジャー/Aマイナー</button>
-      <button class="scale-button" value="C#">C#メジャー/Bbマイナー</button>
-      <button class="scale-button" value="D">Dメジャー/Bマイナー</button>
-      <button class="scale-button" value="D#">Ebメジャー/Cマイナー</button>
-      <button class="scale-button" value="E">Eメジャー/C#マイナー</button>
-      <button class="scale-button" value="F">Fメジャー/Dマイナー</button>
-      <button class="scale-button" value="F#">F#メジャー/Ebマイナー</button>
-      <button class="scale-button" value="G">Gメジャー/Eマイナー</button>
-      <button class="scale-button" value="G#">Abメジャー/Fマイナー</button>
-      <button class="scale-button" value="A">Aメジャー/F#マイナー</button>
-      <button class="scale-button" value="A#">Bbメジャー/Gマイナー</button>
-      <button class="scale-button" value="B">Bメジャー/Abマイナー</button>
-    </div>
-  </div>
+  <div class="fretboard" id="fretboard"></div>
 
-  <div>
-    <p>コード:</p>
-    <div id="chord-buttons">
-      <button class="chord-button" value="C">Cコード</button>
-      <button class="chord-button" value="D">Dコード</button>
-      <button class="chord-button" value="E">Eコード</button>
-      <button class="chord-button" value="F">Fコード</button>
-      <button class="chord-button" value="G">Gコード</button>
-      <button class="chord-button" value="A">Aコード</button>
-      <button class="chord-button" value="B">Bコード</button>
-    </div>
-  </div>
-</div>
+  <script>
+    const notes = [
+      ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"],
+      ["B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
+      ["G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"],
+      ["D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D"],
+      ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A"],
+      ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"]
+    ];
 
-<div class="fretboard" id="fretboard"></div>
+    const scales = {
+      "C": ["C", "D", "E", "F", "G", "A", "B"],
+      "C#": ["C#", "D#", "F", "F#", "G#", "A#", "C"],
+      "D": ["D", "E", "F#", "G", "A", "B", "C#"],
+      "D#": ["D#", "F", "G", "G#", "A#", "C", "D"],
+      "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
+      "F": ["F", "G", "A", "A#", "C", "D", "E"],
+      "F#": ["F#", "G#", "A#", "B", "C#", "D#", "F"],
+      "G": ["G", "A", "B", "C", "D", "E", "F#"],
+      "G#": ["G#", "A#", "C", "C#", "D#", "F", "G"],
+      "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
+      "A#": ["A#", "C", "D", "D#", "F", "G", "A"],
+      "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"]
+    };
 
-<script>
-  const notes = [
-    ["(E)", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"],
-    ["(B)", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
-    ["(G)", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"],
-    ["(D)", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D"],
-    ["(A)", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A"],
-    ["(E)", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"]
-  ];
+    const chords = {
+      "C": ["C", "E", "G"],
+      "D": ["D", "F#", "A"],
+      "E": ["E", "G#", "B"],
+      "F": ["F", "A", "C"],
+      "G": ["G", "B", "D"],
+      "A": ["A", "C#", "E"],
+      "B": ["B", "D#", "F#"]
+    };
 
-  const scales = {
-    "C": ["C", "D", "E", "F", "G", "A", "B"],
-    "C#": ["C#", "D#", "F", "F#", "G#", "A#", "C"],
-    "D": ["D", "E", "F#", "G", "A", "B", "C#"],
-    "D#": ["D#", "F", "G", "G#", "A#", "C", "D"],
-    "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
-    "F": ["F", "G", "A", "A#", "C", "D", "E"],
-    "F#": ["F#", "G#", "A#", "B", "C#", "D#", "F"],
-    "G": ["G", "A", "B", "C", "D", "E", "F#"],
-    "G#": ["G#", "A#", "C", "C#", "D#", "F", "G"],
-    "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
-    "A#": ["A#", "C", "D", "D#", "F", "G", "A"],
-    "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"]
-  };
+    function generateFretboard() {
+      const fretboard = document.getElementById('fretboard');
+      fretboard.innerHTML = '';
 
-  const chords = {
-    "C": ["C", "E", "G"],
-    "D": ["D", "F#", "A"],
-    "E": ["E", "G#", "B"],
-    "F": ["F", "A", "C"],
-    "G": ["G", "B", "D"],
-    "A": ["A", "C#", "E"],
-    "B": ["B", "D#", "F#"]
-  };
-
-  function generateFretboard() {
-    const fretboard = document.getElementById('fretboard');
-    fretboard.innerHTML = '';
-
-    // フレット番号の表示
-    for (let fret = 0; fret <= 12; fret++) {
+      // フレット番号の表示
+      for (let fret = 0; fret <= 12; fret++) {
         const fretNumberDiv = document.createElement('div');
         fretNumberDiv.classList.add('fret-number');
         fretNumberDiv.textContent = fret === 0 ? '' : fret;
         fretboard.appendChild(fretNumberDiv);
-    }
+      }
 
-    // 弦とフレットの表示
-    for (let string = 0; string < notes.length; string++) {
+      // 弦とフレットの表示
+      for (let string = 0; string < notes.length; string++) {
         // 弦番号の表示を削除
         // const stringNumberDiv = document.createElement('div');
         // stringNumberDiv.classList.add('string-number');
@@ -266,72 +293,94 @@
         // fretboard.appendChild(stringNumberDiv);
 
         for (let fret = 0; fret < notes[string].length; fret++) {
-            const fretDiv = document.createElement('div');
-            fretDiv.classList.add('fret');
-            fretDiv.dataset.note = notes[string][fret];
-            fretDiv.textContent = notes[string][fret];
-            fretboard.appendChild(fretDiv);
+          const fretDiv = document.createElement('div');
+          fretDiv.classList.add('fret');
+          fretDiv.dataset.note = notes[string][fret];
+          fretDiv.textContent = notes[string][fret];
+          fretboard.appendChild(fretDiv);
         }
+      }
+
+      for (let fret = 0; fret <= 12; fret++) {
+        const fretNumberDiv = document.createElement('div');
+        fretNumberDiv.classList.add('fret-number');
+        if (fret === 3 || fret === 5 || fret == 7 || fret == 9) {
+          // 3フレットと5フレットに点を追加
+          const dot = document.createElement('div');
+          dot.classList.add('dot');
+          fretNumberDiv.appendChild(dot);
+        } else if (fret == 12) {
+          const doubleDotDiv = document.createElement('div');
+          doubleDotDiv.classList.add('double-dot');
+          const dot1 = document.createElement('div');
+          const dot2 = document.createElement('div');
+          dot1.classList.add('dot');
+          dot2.classList.add('dot');
+          doubleDotDiv.appendChild(dot1);
+          doubleDotDiv.appendChild(dot2);
+          fretNumberDiv.appendChild(doubleDotDiv);
+        }
+        fretboard.appendChild(fretNumberDiv);
+      }
     }
-}
 
-  function clearAllSelections() {
-    const noteButtons = document.querySelectorAll('.note-button');
-    const scaleButtons = document.querySelectorAll('.scale-button');
-    const chordButtons = document.querySelectorAll('.chord-button');
-    const frets = document.querySelectorAll('.fret');
+    function clearAllSelections() {
+      const noteButtons = document.querySelectorAll('.note-button');
+      const scaleButtons = document.querySelectorAll('.scale-button');
+      const chordButtons = document.querySelectorAll('.chord-button');
+      const frets = document.querySelectorAll('.fret');
 
-    noteButtons.forEach(button => button.classList.remove('selected'));
-    scaleButtons.forEach(button => button.classList.remove('selected'));
-    chordButtons.forEach(button => button.classList.remove('selected'));
-    frets.forEach(fret => fret.classList.remove('highlight'));
-  }
+      noteButtons.forEach(button => button.classList.remove('selected'));
+      scaleButtons.forEach(button => button.classList.remove('selected'));
+      chordButtons.forEach(button => button.classList.remove('selected'));
+      frets.forEach(fret => fret.classList.remove('highlight'));
+    }
 
-  // 選択された音階に基づいて色付けを行う処理
-  function highlightNotes(selectedNotes) {
-    const frets = document.querySelectorAll('.fret'); // フレットを選択
-    frets.forEach(fret => {
+    // 選択された音階に基づいて色付けを行う処理
+    function highlightNotes(selectedNotes) {
+      const frets = document.querySelectorAll('.fret'); // フレットを選択
+      frets.forEach(fret => {
         if (selectedNotes.includes(fret.dataset.note)) { // 選択された音階がフレットの音階に含まれているか確認
-            fret.classList.add('highlight'); // ハイライトクラスを追加
+          fret.classList.add('highlight'); // ハイライトクラスを追加
         } else {
-            fret.classList.remove('highlight'); // ハイライトを解除
+          fret.classList.remove('highlight'); // ハイライトを解除
         }
-    });
-  }
+      });
+    }
 
-  function highlightScale(scale) {
-    const selectedNotes = scales[scale];
-    const frets = document.querySelectorAll('.fret');
-    frets.forEach(fret => {
+    function highlightScale(scale) {
+      const selectedNotes = scales[scale];
+      const frets = document.querySelectorAll('.fret');
+      frets.forEach(fret => {
         const note = fret.dataset.note;
         if (selectedNotes.includes(note)) {
           fret.classList.add('highlight');
         } else {
-            fret.classList.remove('highlight'); // ハイライトを解除
+          fret.classList.remove('highlight'); // ハイライトを解除
         }
-    });
-  }
+      });
+    }
 
-  function highlightChord(chord) {
-    const selectedNotes = chords[chord];
-    const frets = document.querySelectorAll('.fret');
+    function highlightChord(chord) {
+      const selectedNotes = chords[chord];
+      const frets = document.querySelectorAll('.fret');
 
-    frets.forEach(fret => {
-      const note = fret.dataset.note;
-      if (selectedNotes.includes(note)) {
-        fret.classList.add('highlight');
-      }
-    });
-  }
+      frets.forEach(fret => {
+        const note = fret.dataset.note;
+        if (selectedNotes.includes(note)) {
+          fret.classList.add('highlight');
+        }
+      });
+    }
 
-  // 音階ボタンが押されたときの処理
-  function handleNoteButtonClick(event) {
-    const noteButton = event.target;
+    // 音階ボタンが押されたときの処理
+    function handleNoteButtonClick(event) {
+      const noteButton = event.target;
 
-    // 音階ボタンを選択/解除
-    if (noteButton.classList.contains('selected')) {
+      // 音階ボタンを選択/解除
+      if (noteButton.classList.contains('selected')) {
         noteButton.classList.remove('selected'); // 選択を解除
-    } else {
+      } else {
         noteButton.classList.add('selected'); // 選択
 
         // 音階ボタンが選択されたときに、スケールボタンとコードボタンの選択を解除
@@ -340,61 +389,62 @@
 
         const chordButtons = document.querySelectorAll('.chord-button.selected');
         chordButtons.forEach(button => button.classList.remove('selected')); // コードボタンの選択を解除
+      }
+
+      // 選択された音階のリストを取得
+      const selectedNotes = Array.from(document.querySelectorAll('.note-button.selected')).map(button => button.value);
+
+      // ハイライトを更新
+      highlightNotes(selectedNotes);
     }
 
-    // 選択された音階のリストを取得
-    const selectedNotes = Array.from(document.querySelectorAll('.note-button.selected')).map(button => button.value);
-    
-    // ハイライトを更新
-    highlightNotes(selectedNotes);
-  }
-
-  function handleScaleButtonClick(event) {
-    const scaleButton = event.target;
-    if (scaleButton.classList.contains('selected')) {
-      scaleButton.classList.remove('selected'); // 選択を解除
-      clearAllSelections();
-    } else {
+    function handleScaleButtonClick(event) {
+      const scaleButton = event.target;
+      if (scaleButton.classList.contains('selected')) {
+        scaleButton.classList.remove('selected'); // 選択を解除
+        clearAllSelections();
+      } else {
         scaleButton.classList.add('selected'); // 選択
         clearAllSelections();
         event.target.classList.add('selected');
         const selectedScale = event.target.value;
         highlightScale(selectedScale);
-        }
-  }
+      }
+    }
 
-  function handleChordButtonClick(event) {
-    const chordButton = event.target;
-    if (chordButton.classList.contains('selected')) {
-      chordButton.classList.remove('selected'); // 選択を解除
-      clearAllSelections();
-    } else {
+    function handleChordButtonClick(event) {
+      const chordButton = event.target;
+      if (chordButton.classList.contains('selected')) {
+        chordButton.classList.remove('selected'); // 選択を解除
+        clearAllSelections();
+      } else {
         clearAllSelections();
         event.target.classList.add('selected');
         const selectedChord = event.target.value;
         highlightChord(selectedChord);
+      }
     }
-  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    generateFretboard();
+    document.addEventListener('DOMContentLoaded', () => {
+      generateFretboard();
 
-    const noteButtons = document.querySelectorAll('.note-button');
-    noteButtons.forEach(button => {
-      button.addEventListener('click', handleNoteButtonClick);
+      const noteButtons = document.querySelectorAll('.note-button');
+      noteButtons.forEach(button => {
+        button.addEventListener('click', handleNoteButtonClick);
+      });
+
+      const scaleButtons = document.querySelectorAll('.scale-button');
+      scaleButtons.forEach(button => {
+        button.addEventListener('click', handleScaleButtonClick);
+      });
+
+      const chordButtons = document.querySelectorAll('.chord-button');
+      chordButtons.forEach(button => {
+        button.addEventListener('click', handleChordButtonClick);
+      });
     });
-
-    const scaleButtons = document.querySelectorAll('.scale-button');
-    scaleButtons.forEach(button => {
-      button.addEventListener('click', handleScaleButtonClick);
-    });
-
-    const chordButtons = document.querySelectorAll('.chord-button');
-    chordButtons.forEach(button => {
-      button.addEventListener('click', handleChordButtonClick);
-    });
-  });
-</script>
+  </script>
 
 </body>
+
 </html>
