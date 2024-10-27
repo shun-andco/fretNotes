@@ -37,6 +37,7 @@
       align-items: center;
       border-radius: 4px;
       transition: background-color 0.3s, transform 0.2s;
+      margin: 0 auto;
     }
   
     .fret:hover {
@@ -103,13 +104,6 @@
   
     /* モバイル対応 */
     @media (max-width: 600px) {
-      .fretboard {
-        height: auto;
-        font-size: auto;
-        padding: auto;
-        margin: 0 auto;
-      }
-  
       .note-button,
       .scale-button,
       .chord-button {
@@ -120,6 +114,7 @@
       .fret {
         padding: auto;
         font-size: auto;
+        margin: 0 auto;
       }
       .fretboard {
       width: 100%;
@@ -128,7 +123,8 @@
       display: grid;
       margin: 0 auto;
       gap: auto;
-      margin: 0 auto;
+      font-size: auto;
+      padding: auto;
       }
       .note-selector-container {
       display: flex;
