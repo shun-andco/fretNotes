@@ -16,7 +16,6 @@
     }
 
     h1 {
-      font-size: 2.5em;
       /* 大きな見出し */
       font-weight: 500;
       /* 普通の太さ */
@@ -29,10 +28,11 @@
 
     .fretboard {
       max-width: 100%;
-      aspect-ratio: 16 / 9;
+      max-height: 100%;
+      aspect-ratio: 25 / 9;
       display: grid;
-      margin: 4px auto;
-      padding: 3px;
+      margin: 0 auto;
+      padding: 1vw;
       grid-template-columns: repeat(13, 1fr);
       gap: 0.75%;
       border: 2px solid #e0e0e0;
@@ -43,7 +43,9 @@
     }
 
     .fret {
-      aspect-ratio: 16 / 9;
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 25 / 9;
       display: grid;
       justify-content: center;
       align-items: center;
@@ -52,6 +54,7 @@
       transition: background-color 0.3s, transform 0.2s;
       background-color: #f1f1f1;
       border: 1px solid #d1c4e9;
+      font-size: 2vw;
       /* 薄い紫 */
     }
 
@@ -69,17 +72,22 @@
     .fret-number {
       font-weight: bold;
       text-align: center;
-      font-size: 16px;
+      font-size: auto;
       color: #6a1b9a;
       /* 濃い紫 */
       letter-spacing: 0.5px;
       line-height: 1.4;
+      margin: 0 auto;
+
     }
 
     .fret-number {
-      font-size: 14px;
+      font-size: auto;
       color: #5e35b1;
       /* 濃い紫 */
+      max-width: 100%;
+      aspect-ratio: 25 / 9;
+      margin: 0 auto;
     }
 
     .note-selector-container {
@@ -99,7 +107,7 @@
     .note-button,
     .scale-button,
     .chord-button {
-      padding: 10px;
+      padding: 1%;
       border: 1px solid #9c27b0;
       /* 濃いピンク */
       background-color: #ffffff;
@@ -134,12 +142,12 @@
     }
 
     .dot {
-      width: 6px;
-      height: 6px;
+      width: 0.8vw;
+      height: 0.8vw;
       border-radius: 50%;
       background-color: #9c27b0;
       /* 濃いピンク */
-      margin: 2px auto;
+      margin: 0.2vw auto;
     }
 
     .double-dot {
