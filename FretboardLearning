@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ギター指板学習アプリ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .fretboard {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 5px;
+      margin: 20px auto;
+      max-width: 800px;
+    }
+
+    .fret {
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #f0f0f0;
+      transition: background-color 0.3s;
+    }
+
+    .fret:hover {
+      background-color: #d0d0f0;
+    }
+
+    .highlight {
+      background-color: #b0f0b0;
+    }
+
+    .note-button {
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #5e35b1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .note-button:hover {
+      background-color: #4c278b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>ギター指板学習アプリ</h1>
+  <button id="testButton" class="note-button">ランダム音を出力</button>
+  <p id="outputNote">音階: -</p>
+
+  <div class="fretboard" id="fretboard"></div>
+
+  <script>
+    const notes = [
+      ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"],
+      ["B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
+      ["G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G"],
+      ["D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D"],
+      ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A"],
+      ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E"]
+    ];
+
+    function generateFretboard() {
+      const fretboard = document.getElementById('fretboard');
+      fretboard.innerHTML = '';
+
+      for (let string = 0; string < notes.length; string++) {
+        for (let fret = 0; fret < notes[string].length; fret++) {
+          const fretDiv = document.createElement('div');
+          fretDiv.classList.add('fret');
+          fretDiv.textContent = notes[string][fret];
+          fretDiv.addEventListener('click', () => checkAnswer(notes[string][fret]));
+          fretboard.appendChild(fretDiv);
+        }
+      }
+    }
+
+    function getRandomNote() {
+      const allNotes = notes.flat();
+      const randomNote = allNotes[Math.floor(Math.random() * allNotes.length)];
+      document.getElementById('outputNote').textContent = `音階: ${randomNote}`;
+      return randomNote;
+    }
+
+    function checkAnswer(selectedNote) {
+      const correctNote = document.getElementById('outputNote').textContent.split(': ')[1];
+      if (selectedNote === correctNote) {
+        alert('正解！');
+      } else {
+        alert('不正解、もう一度挑戦してみてください。');
+      }
+    }
+
+    document.getElementById('testButton').addEventListener('click', getRandomNote);
+
+    generateFretboard();
+  </script>
+
+</body>
+
+</html>
